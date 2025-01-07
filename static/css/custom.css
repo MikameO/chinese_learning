@@ -1,0 +1,42 @@
+/* Chinese font support */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.hanzi {
+    font-size: 2.5rem;
+    line-height: 1.2;
+}
+
+.character-card {
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.character-card:hover {
+    transform: translateY(-2px);
+}
+
+.progress-stats {
+    font-size: 1.2rem;
+}
+
+.study-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.review-buttons {
+    gap: 1rem;
+}
+
+/* Dark mode optimizations */
+[data-bs-theme=dark] .character-card {
+    background-color: var(--bs-gray-800);
+}
+
+[data-bs-theme=dark] .progress {
+    background-color: var(--bs-gray-700);
+}

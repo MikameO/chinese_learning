@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 mb-4">Welcome to 汉字学习</h1>
+    <p class="lead mb-4">Learn Chinese characters effectively with spaced repetition</p>
+    
+    <div class="d-grid gap-2 col-md-6 mx-auto">
+        <button onclick="initializeLearning()" class="btn btn-primary btn-lg">Get Started</button>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <h3>Spaced Repetition</h3>
+            <p>Learn efficiently with scientifically-proven review intervals</p>
+        </div>
+        <div class="col-md-4">
+            <h3>Track Progress</h3>
+            <p>Monitor your learning journey with detailed statistics</p>
+        </div>
+        <div class="col-md-4">
+            <h3>Character Details</h3>
+            <p>Learn pronunciations, meanings, and stroke orders</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

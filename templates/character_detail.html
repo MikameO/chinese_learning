@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h1 class="display-1 hanzi">{{ character.hanzi }}</h1>
+                        <h2 class="pinyin">{{ character.pinyin }}</h2>
+                        <p class="lead meaning">{{ character.meaning }}</p>
+                        {% if character.radical %}
+                        <p class="text-muted">Radical: {{ character.radical }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <p class="text-muted mb-2">Stroke Count</p>
+                            <h3>{{ character.stroke_count }}</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted mb-2">Difficulty Level</p>
+                            <h3>{{ character.difficulty }}/5</h3>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted mb-2">Components</p>
+                            <h3>{{ character.components|length }}</h3>
+                        </div>
+                    </div>
+
+                    {% if character.etymology %}
+                    <div class="mt-4">
+                        <h4>Etymology</h4>
+                        <p>{{ character.etymology }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if character.mnemonic %}
+                    <div class="mt-4">
+                        <h4>Mnemonic</h4>
+                        <p>{{ character.mnemonic }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Character Components -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Character Components</h3>
+                    <div class="row">
+                        {% for component in character.components %}
+                        <div class="col-md-4 mb-3">
+                            <div class="component-card text-center p-3 border rounded">
+                                <h4 class="hanzi mb-2">{{ component.component }}</h4>
+                                <p class="mb-1">{{ component.meaning }}</p>
+                                <p class="text-muted mb-1">Position: {{ component.position|default('Not specified') }}</p>
+                                <small class="text-muted">Strokes: {{ component.stroke_count }}</small>
+                                {% if component.usage_notes %}
+                                <p class="mt-2 small">{{ component.usage_notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Similar Characters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Similar Characters</h3>
+                    <div class="row">
+                        {% for similar in character.similar_to %}
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('character_detail', char_id=similar.id) }}" 
+                               class="text-decoration-none">
+                                <div class="similar-char-card text-center p-3 border rounded">
+                                    <h4 class="hanzi mb-2">{{ similar.hanzi }}</h4>
+                                    <p class="mb-1">{{ similar.pinyin }}</p>
+                                    <p class="text-muted mb-1">{{ similar.meaning }}</p>
+                                    {% if similar.relationship_type %}
+                                    <span class="badge bg-info">
+                                        {{ similar.relationship_type|title }} Similarity
+                                        {% if similar.similarity_score %}
+                                        ({{ "%.0f"|format(similar.similarity_score * 100) }}%)
+                                        {% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Progress -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Learning Progress</h3>
+                    <div class="character-progress">
+                        <!-- Progress will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get character progress from localStorage
+    const progress = JSON.parse(localStorage.getItem('characterProgress')) || {};
+    const charId = '{{ character.id }}';
+    const charData = progress[charId] || {
+        level: 0,
+        reviews: 0,
+        correctReviews: 0
+    };
+
+    // Update progress display
+    const progressDiv = document.querySelector('.character-progress');
+    const accuracy = charData.reviews ? 
+        Math.round((charData.correctReviews / charData.reviews) * 100) : 0;
+
+    progressDiv.innerHTML = `
+        <div class="row text-center">
+            <div class="col-md-4">
+                <p class="text-muted mb-1">Level</p>
+                <h4>${charData.level}</h4>
+            </div>
+            <div class="col-md-4">
+                <p class="text-muted mb-1">Reviews</p>
+                <h4>${charData.reviews}</h4>
+            </div>
+            <div class="col-md-4">
+                <p class="text-muted mb-1">Accuracy</p>
+                <h4>${accuracy}%</h4>
+            </div>
+        </div>
+    `;
+});
+</script>
+{% endblock %}

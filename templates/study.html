@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="study-container">
+    <h2 class="text-center mb-4">Study Session</h2>
+    
+    <div class="character-display mb-4">
+        <!-- Character content will be inserted here by JS -->
+    </div>
+
+    <div class="review-buttons d-flex justify-content-center mb-4">
+        <button class="btn btn-danger btn-lg" onclick="window.srsManager.handleResponse(false)">
+            Incorrect
+        </button>
+        <button class="btn btn-success btn-lg" onclick="window.srsManager.handleResponse(true)">
+            Correct
+        </button>
+    </div>
+
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+    </div>
+
+    <!-- Hidden data for JS -->
+    <script id="study-data" type="application/json">
+        {{ characters|tojson|safe }}
+    </script>
+</div>
+
+<script src="{{ url_for('static', filename='js/srs.js') }}"></script>
+{% endblock %}

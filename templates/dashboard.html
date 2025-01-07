@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>Welcome to Your Dashboard!</h1>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Characters Learned</h3>
+                        <p class="display-4" id="charsLearned">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Current Streak</h3>
+                        <p class="display-4" id="currentStreak">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card mb-3">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">Due Reviews</h3>
+                        <p class="display-4" id="dueReviews">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 col-md-6 mx-auto mt-4">
+            <a href="{{ url_for('study') }}" class="btn btn-primary btn-lg">Start Studying</a>
+            <a href="{{ url_for('characters') }}" class="btn btn-outline-secondary btn-lg">Browse Characters</a>
+            <!-- NEW: Reset Progress Button -->
+            <button id="resetProgressBtn" class="btn btn-danger btn-lg">Reset Progress</button>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Recent Progress</h3>
+                <canvas id="progressChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load progress from localStorage
+    const progress = JSON.parse(localStorage.getItem('userProgress')) || {};
+    const charProgress = JSON.parse(localStorage.getItem('characterProgress')) || {};
+
+    // Update stats
+    document.getElementById('charsLearned').textContent = Object.keys(charProgress).length;
+    document.getElementById('currentStreak').textContent = progress.streakDays || 0;
+
+    // Calculate due reviews
+    const now = new Date();
+    const dueCount = Object.values(charProgress).filter(char => 
+        new Date(char.nextReview) <= now
+    ).length;
+    document.getElementById('dueReviews').textContent = dueCount;
+
+    // Prepare chart data
+    const reviewHistory = progress.reviewHistory || [];
+    const lastWeek = [...Array(7)].map((_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        return date.toLocaleDateString();
+    });
+
+    const reviewCounts = lastWeek.map(date => 
+        reviewHistory.filter(review => 
+            new Date(review.date).toLocaleDateString() === date
+        ).length
+    );
+
+    // Create progress chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: lastWeek.map(date => 
+                new Date(date).toLocaleDateString('en-US', { weekday: 'short' })
+            ),
+            datasets: [{
+                label: 'Characters Reviewed',
+                data: reviewCounts,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // NEW: Reset Progress Button logic
+    const resetButton = document.getElementById('resetProgressBtn');
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            if (confirm("Are you sure you want to reset your progress? This action cannot be undone.")) {
+                // Clear localStorage items
+                localStorage.removeItem('userProgress');
+                localStorage.removeItem('characterProgress');
+                // Reload the page to reflect changes
+                location.reload();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

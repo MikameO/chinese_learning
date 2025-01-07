@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <h2>Character Library</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search characters..." 
+                       onkeyup="searchCharacter(this.value)">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for char in characters %}
+    <div class="col character-card">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h3 class="hanzi mb-2">{{ char.hanzi }}</h3>
+                <p class="pinyin mb-1">{{ char.pinyin }}</p>
+                <p class="meaning mb-2">{{ char.meaning }}</p>
+                <div class="components mb-2">
+                    <h6 class="text-muted">Components</h6>
+                    {% for comp in char.components %}
+                    <span class="badge bg-secondary me-1" title="{{ comp.meaning }}">
+                        {{ comp.component }}
+                    </span>
+                    {% endfor %}
+                </div>
+                <div class="similar-chars mb-2">
+                    <h6 class="text-muted">Similar Characters</h6>
+                    {% for similar in char.similar_to %}
+                    <span class="badge bg-info me-1" title="{{ similar.pinyin }} - {{ similar.meaning }}">
+                        {{ similar.hanzi }}
+                    </span>
+                    {% endfor %}
+                </div>
+                <p class="text-muted">
+                    <small>Strokes: {{ char.stroke_count }}</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+const searchCharacter = (input) => {
+    const characterCards = document.querySelectorAll('.character-card');
+    const searchTerm = input.toLowerCase();
+
+    characterCards.forEach(card => {
+        const hanzi = card.querySelector('.hanzi').textContent;
+        const pinyin = card.querySelector('.pinyin').textContent.toLowerCase();
+        const meaning = card.querySelector('.meaning').textContent.toLowerCase();
+        const components = Array.from(card.querySelectorAll('.components .badge'))
+            .map(b => b.textContent.trim().toLowerCase())
+            .join(' ');
+        const similar = Array.from(card.querySelectorAll('.similar-chars .badge'))
+            .map(b => b.textContent.trim().toLowerCase())
+            .join(' ');
+
+        if (hanzi.includes(searchTerm) || 
+            pinyin.includes(searchTerm) || 
+            meaning.includes(searchTerm) ||
+            components.includes(searchTerm) ||
+            similar.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+};
+</script>
+{% endblock %}
